@@ -171,4 +171,80 @@ function sprite(rows, palette, ox = 0, oy = 0) {
   return out;
 }
 
-module.exports = { PAL, FONT, text, textCentered, textWidth, rect, dither, sprite, BAYER4 };
+// Disco pixelado.
+function disc(cx, cy, r, color) {
+  let out = "";
+  for (let y = -r; y <= r; y++) {
+    const w = Math.floor(Math.sqrt(r * r - y * y));
+    if (w > 0) out += rect(cx - w, cy + y, w * 2 + 1, 1, color);
+  }
+  return out;
+}
+
+// Anillo de grosor arbitrario (rOut y rIn en pixeles).
+function ring(cx, cy, rOut, rIn, color) {
+  let out = "";
+  for (let y = -rOut; y <= rOut; y++) {
+    const wo = Math.floor(Math.sqrt(Math.max(0, rOut * rOut - y * y)));
+    if (wo <= 0) continue;
+    const wi = Math.abs(y) <= rIn ? Math.floor(Math.sqrt(rIn * rIn - y * y)) : -1;
+    if (wi < 0) out += rect(cx - wo, cy + y, wo * 2 + 1, 1, color);
+    else {
+      out += rect(cx - wo, cy + y, wo - wi, 1, color);
+      out += rect(cx + wi + 1, cy + y, wo - wi, 1, color);
+    }
+  }
+  return out;
+}
+
+// Relleno de un cuadrilatero convexo, para las caras de un cubo isometrico.
+function quad(pts, color, ox = 0, oy = 0) {
+  const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const inside = (px, py) => {
+    let sign = 0;
+    for (let i = 0; i < pts.length; i++) {
+      const [ax, ay] = pts[i], [bx, by] = pts[(i + 1) % pts.length];
+      const c = (bx - ax) * (py - ay) - (by - ay) * (px - ax);
+      if (c === 0) continue;
+      const sc = c > 0 ? 1 : -1;
+      if (sign === 0) sign = sc;
+      else if (sc !== sign) return false;
+    }
+    return true;
+  };
+  let out = "";
+  for (let py = y0; py <= y1; py++) {
+    let run = null;
+    for (let px = x0; px <= x1 + 1; px++) {
+      const on = px <= x1 && inside(px + 0.5, py + 0.5);
+      if (on) { if (run) run.len++; else run = { x: px, len: 1 }; }
+      else if (run) { out += rect(ox + run.x, oy + py, run.len, 1, color); run = null; }
+    }
+  }
+  return out;
+}
+
+// Engorda un mapa de sprite en 1 pixel: sirve para hacerle un contorno
+// y que se lea sobre cualquier fondo.
+function dilate(rows, char) {
+  const h = rows.length, w = Math.max(...rows.map((r) => r.length));
+  const at = (x, y) => (y < 0 || y >= h || x < 0 || x >= w ? "." : (rows[y][x] || "."));
+  const out = [];
+  for (let y = -1; y <= h; y++) {
+    let line = "";
+    for (let x = -1; x <= w; x++) {
+      if (at(x, y) !== ".") { line += at(x, y); continue; }
+      let vecino = false;
+      for (let dy = -1; dy <= 1 && !vecino; dy++)
+        for (let dx = -1; dx <= 1; dx++)
+          if (at(x + dx, y + dy) !== ".") { vecino = true; break; }
+      line += vecino ? char : ".";
+    }
+    out.push(line);
+  }
+  return out;
+}
+
+module.exports = { PAL, FONT, text, textCentered, textWidth, rect, dither, sprite, disc, ring, quad, dilate, BAYER4 };
