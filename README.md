@@ -1,98 +1,125 @@
 <div align="center">
-
-<img src="https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=500&size=26&duration=3000&pause=1000&color=B36BFF&center=true&vCenter=true&width=560&lines=Hola%2C+soy+Amaru+%F0%9F%91%8B;Game+Developer+%F0%9F%8E%AE;Frontend+Developer+%F0%9F%92%BB;Unity+%E2%80%A2+C%23+%E2%80%A2+Next.js" alt="Typing SVG" />
-
+  <img src="https://raw.githubusercontent.com/AmaruSegovia/AmaruSegovia/master/assets/banner.svg" alt="Amaru Segovia — Game Developer y Frontend Developer" width="100%" />
 </div>
 
 <p align="center">
-  <img src="https://komarev.com/ghpvc/?username=AmaruSegovia&label=Visitas%20al%20perfil&color=B36BFF&style=flat" alt="Visitor badge" />
+  <a href="https://amarusegovia.github.io/psx-converter/"><img alt="PSX Converter" src="https://img.shields.io/badge/PSX_CONVERTER-PROBALO_ONLINE-b36bff?style=for-the-badge&labelColor=150d2b&logo=googlechrome&logoColor=ffd76b" /></a>
+  <a href="https://github.com/AmaruSegovia?tab=followers"><img alt="Seguidores" src="https://custom-icon-badges.demolab.com/github/followers/AmaruSegovia?style=for-the-badge&logo=person-add&label=SEGUIR&labelColor=150d2b&color=7231c9&logoColor=white" /></a>
+  <img alt="Visitas al perfil" src="https://komarev.com/ghpvc/?username=AmaruSegovia&style=for-the-badge&label=VISITAS&color=ff6fb5" />
 </p>
 
 ---
 
-### 👨‍💻 Sobre mí
+## 🕹️ INSERT COIN · Sobre mí
 
-Soy **Amaru**, tengo 23 años y vivo en Jujuy, Argentina 🇦🇷. Vengo del mundo del **desarrollo de videojuegos** (4 años trabajando con Unity 2D/3D) y hoy combino eso con mi trabajo como **frontend developer**.
+Hago **videojuegos con Unity** y **aplicaciones web con Next.js**. Vivo en Jujuy, Argentina 🇦🇷
 
-- 🎮 Programo juegos en **Unity (C#)**, y también pasé por **Processing/Java**
-- 💻 Actualmente trabajo como **Frontend Developer** en **Corralon El Mercado** (Jujuy), con **Next.js + TypeScript**
-- 🥽 Desarrollé una experiencia de **Realidad Virtual para Meta Quest 3**, para un planetario en Madrid
-- 🐎 Ahora estoy metido de lleno en **El Último Gaucho**, mi juego multijugador
-- 🎯 Cuando no estoy programando, seguro me encontrás jugando **Overwatch**
+- 🎮 **4 años** desarrollando juegos en Unity 2D/3D con C#
+- 💻 Hoy soy **Frontend Developer** en Corralón El Mercado — Next.js + TypeScript
+- 🥽 Desarrollé una experiencia de **Realidad Virtual para Meta Quest 3** para un planetario en Madrid
+- 🐎 Estoy construyendo **El Último Gaucho**, mi juego multijugador
+- 🎨 Me obsesiona el pixel art y lo retro — por eso hice el [PSX Converter](https://amarusegovia.github.io/psx-converter/)
+- 🎯 Fuera del código: **Overwatch**
 
 ---
 
-### 🎮 Proyectos destacados
+## 🎮 SELECT STAGE · Proyectos
 
 <table>
   <tr>
     <td width="50%" valign="top">
-      <h4>🥽 VR — Planetario de Madrid</h4>
-      Experiencia de Realidad Virtual inmersiva desarrollada para <b>Meta Quest 3</b>, pensada para un planetario en Madrid.
-      <br/><br/>
-      <code>Unity</code> <code>C#</code> <code>Meta Quest 3</code>
-      <br/><i>Proyecto privado</i>
+      <h3>🕹️ PSX Converter</h3>
+      Convertí cualquier imagen a pixel art: <b>PSX</b>, <b>GameBoy</b>, <b>N64</b>, <b>CRT</b> y más.
+      Gratis y corre entero en el navegador.
+      <br /><br />
+      <code>TypeScript</code> <code>MIT</code>
+      <br /><br />
+      <a href="https://amarusegovia.github.io/psx-converter/"><b>▶ Probalo online</b></a> ·
+      <a href="https://github.com/AmaruSegovia/psx-converter">Código</a>
     </td>
     <td width="50%" valign="top">
-      <h4>🐎 El Último Gaucho</h4>
+      <h3>🐎 El Último Gaucho</h3>
       Juego multijugador en desarrollo activo. Mi proyecto personal más ambicioso hasta ahora.
-      <br/><br/>
+      <br /><br />
       <code>Unity</code> <code>C#</code> <code>Multiplayer</code>
-      <br/><i>En desarrollo — proyecto privado</i>
+      <br /><br />
+      <i>En desarrollo — repositorio privado</i>
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <h4>🧙 <a href="https://github.com/AmaruSegovia/TPFinalMecanicasVJ-Estima2">MagIA</a></h4>
-      Roguelike 2D de acción y aventura, trabajo final de la Tecnicatura en Desarrollo Integral de Videojuegos (FIUNJU).
-      <br/><br/>
-      <code>Processing</code> <code>Java</code>
+      <h3>🥽 VR — Planetario de Madrid</h3>
+      Experiencia inmersiva de Realidad Virtual para <b>Meta Quest 3</b>, hecha para un planetario en Madrid.
+      <br /><br />
+      <code>Unity</code> <code>C#</code> <code>Meta Quest 3</code>
+      <br /><br />
+      <i>Repositorio privado</i>
     </td>
-    <td width="50%" valign="top"></td>
+    <td width="50%" valign="top">
+      <h3>🧙 MagIA</h3>
+      Roguelike 2D de acción y aventura. Trabajo final de la Tecnicatura en Desarrollo Integral de Videojuegos (FIUNJU).
+      <br /><br />
+      <code>Processing</code> <code>Java</code>
+      <br /><br />
+      <a href="https://github.com/AmaruSegovia/TPFinalMecanicasVJ-Estima2">Código</a>
+    </td>
+  </tr>
+</table>
+
+<p align="center">
+  <sub>
+    También:
+    <a href="https://github.com/AmaruSegovia/Evacuation">Evacuation</a> (2D zombies) ·
+    <a href="https://github.com/AmaruSegovia/1D4GameJam">1D4 Game Jam</a> ·
+    <a href="https://github.com/AmaruSegovia/Prototipo-LostWhispers">Lost Whispers</a> ·
+    <a href="https://github.com/AmaruSegovia/Backend-CorralonERP">Backend Corralón ERP</a> ·
+    <a href="https://github.com/AmaruSegovia?tab=repositories"><b>ver todos los repos →</b></a>
+  </sub>
+</p>
+
+---
+
+## ⚙️ INVENTARIO · Stack
+
+<table>
+  <tr>
+    <td><b>Game Dev</b></td>
+    <td><img src="https://skillicons.dev/icons?i=unity,cs,cpp,java&theme=dark" alt="Unity, C#, C++, Java" /></td>
+  </tr>
+  <tr>
+    <td><b>Web</b></td>
+    <td><img src="https://skillicons.dev/icons?i=nextjs,react,ts,js,nodejs,html,css&theme=dark" alt="Next.js, React, TypeScript, JavaScript, Node.js, HTML, CSS" /></td>
+  </tr>
+  <tr>
+    <td><b>Herramientas</b></td>
+    <td><img src="https://skillicons.dev/icons?i=git,github,githubactions,vscode,visualstudio&theme=dark" alt="Git, GitHub, GitHub Actions, VS Code, Visual Studio" /></td>
   </tr>
 </table>
 
 ---
 
-### 🛠️ Stack
-
-**Game Dev**
-
-<img src="https://img.shields.io/badge/Unity-000000?style=for-the-badge&logo=unity&logoColor=white" />
-<img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=csharp&logoColor=white" />
-<img src="https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" />
-<img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
-
-**Web**
-
-<img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" />
-<img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
-
-**Herramientas**
-
-<img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" />
-<img src="https://img.shields.io/badge/Claude_Code-D97757?style=for-the-badge&logo=claude&logoColor=white" />
-
----
-
-### 📊 GitHub Stats
+## 📊 HIGH SCORES
 
 <div align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=AmaruSegovia&show_icons=true&theme=dracula&hide_border=true&count_private=true" alt="GitHub Stats" height="165"/>
+  <img src="https://raw.githubusercontent.com/AmaruSegovia/AmaruSegovia/output/stats.svg" alt="Estadísticas de GitHub" width="100%" />
 </div>
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/AmaruSegovia/AmaruSegovia/output/github-contribution-grid-snake.svg" alt="Snake animation" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/AmaruSegovia/AmaruSegovia/output/github-contribution-grid-snake-dark.svg" />
+    <img alt="Serpiente comiéndose mis contribuciones" src="https://raw.githubusercontent.com/AmaruSegovia/AmaruSegovia/output/github-contribution-grid-snake.svg" width="100%" />
+  </picture>
 </div>
 
-> 🐍 La animación se genera sola a partir de mis commits.
+<p align="center"><sub>🐍 La serpiente y la tarjeta de stats se regeneran solas todos los días con GitHub Actions.</sub></p>
 
 ---
 
-### 📫 Conectemos
+## 📡 MULTIPLAYER · Conectemos
 
-<p align="left">
-  <a href="https://www.instagram.com/purple_maru_/" target="_blank">
-    <img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" />
-  </a>
+<p align="center">
+  <a href="https://www.instagram.com/purple_maru_/"><img alt="Instagram" src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white&labelColor=150d2b" /></a>
+  <a href="https://amarusegovia.github.io/psx-converter/"><img alt="PSX Converter" src="https://img.shields.io/badge/psx--converter-b36bff?style=for-the-badge&logo=itchdotio&logoColor=white&labelColor=150d2b" /></a>
 </p>
+
+<div align="center"><sub>▶ PRESS START · Jujuy, Argentina</sub></div>
