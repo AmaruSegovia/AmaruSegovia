@@ -1,26 +1,18 @@
-// Genera stats.svg y contrib.svg desde datos publicos de GitHub. Sin servicios externos.
-// Uso: node scripts/gen-stats.js <dir-salida>
+// Genera stats.svg y contrib.svg desde datos publicos de GitHub, con el mismo
+// sistema de pixel art que el banner: misma paleta, misma fuente bitmap, misma grilla.
+//
+// Uso: node scripts/gen-stats.js <dir-salida> [--contrib]
+
+const { PAL, text, textWidth, rect } = require("./lib/pixel");
+
 const USER = "AmaruSegovia";
 const OUT = process.argv[2] || "dist";
 const TOKEN = process.env.GITHUB_TOKEN || "";
-const MONO = "ui-monospace,'DejaVu Sans Mono','Courier New',monospace";
+const SCALE = 5, W = 240;
 
-const LANG_COLOR = {
-  "C#": "#178600", TypeScript: "#3178c6", JavaScript: "#f1e05a", ShaderLab: "#222c37",
-  Processing: "#0096D8", HTML: "#e34c26", CSS: "#663399", EJS: "#a91e50", Java: "#b07219",
-  "C++": "#f34b7d", C: "#555555", Python: "#3572A5", HLSL: "#aace60", PLpgSQL: "#336790",
-  SCSS: "#c6538c", Shell: "#89e051", Batchfile: "#C1F12E", GLSL: "#5686a5",
-};
-const FALLBACK = ["#b36bff", "#ff6fb5", "#ffd76b", "#5ad2ff", "#7bdc8f", "#ff9d6b", "#c0a8ff", "#8f83bd"];
-
-// varios colores oficiales de lenguajes son casi negros: los reemplazo por la paleta
-const readable = (hex, i) => {
-  if (!hex) return FALLBACK[i % FALLBACK.length];
-  const n = parseInt(hex.slice(1), 16);
-  const lum = (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
-  return lum < 0.22 ? FALLBACK[i % FALLBACK.length] : hex;
-};
-const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+// Los colores oficiales de cada lenguaje se irian de la paleta, asi que asigno por
+// posicion. El nombre va escrito al lado: el color no necesita identificarlo solo.
+const LANG_RAMP = [PAL.ochre, PAL.terra, PAL.sand, PAL.olive, PAL.teal, PAL.wine];
 
 const api = async (p) => {
   const r = await fetch("https://api.github.com" + p, {
@@ -63,76 +55,106 @@ async function contributions() {
   return { days, total: days.reduce((a, d) => a + d.count, 0) };
 }
 
+// marco tipo ventana de menu
+function frame(w, h) {
+  return rect(0, 0, w, h, PAL.ink)
+    + rect(0, 0, w, 1, PAL.cream) + rect(0, h - 1, w, 1, PAL.cream)
+    + rect(0, 0, 1, h, PAL.cream) + rect(w - 1, 0, 1, h, PAL.cream)
+    + rect(2, 2, w - 4, 1, PAL.plum) + rect(2, h - 3, w - 4, 1, PAL.plum);
+}
+
+const svgWrap = (w, h, body, label) =>
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + " " + h + '" width="' + w * SCALE +
+  '" height="' + h * SCALE + '" shape-rendering="crispEdges" role="img" aria-label="' + label + '">' +
+  body + "</svg>";
+
+// ETIQUETA ......... VALOR, como un menu de RPG.
+// Una fila de cuatro cajas con numeros grandes seria justo el patron de "stat banner"
+// que delata a las paginas generadas, asi que va como lista.
+function dotLine(label, value, x, y, w) {
+  const lw = textWidth(label), vw = textWidth(value);
+  const dots = Math.max(0, Math.floor((w - lw - vw - 8) / 6));
+  let out = text(label, x, y, PAL.sand);
+  for (let i = 0; i < dots; i++) out += rect(x + lw + 5 + i * 6, y + 5, 2, 1, PAL.plum);
+  return out + text(value, x + w - vw, y, PAL.cream);
+}
+
+function statsSvg(user, contrib, repoCount, langs) {
+  const H = 76;
+  const today = new Date().toISOString().slice(0, 10);
+  const years = ((Date.now() - new Date(user.created_at)) / 31557600000).toFixed(1);
+
+  let s = frame(W, H);
+  s += text("PARTIDA GUARDADA", 8, 7, PAL.cream);
+  s += text(today, W - 8 - textWidth(today), 7, PAL.plum);
+  s += rect(8, 17, W - 16, 1, PAL.plum);
+
+  const colW = 100;
+  s += dotLine("REPOS", String(repoCount), 8, 23, colW);
+  s += dotLine("SEGUIDORES", String(user.followers), 132, 23, colW);
+  s += dotLine("COMMITS", String(contrib.total), 8, 33, colW);
+  s += dotLine("ANTIGUEDAD", years + "A", 132, 33, colW);
+
+  s += text("LENGUAJES", 8, 47, PAL.olive);
+
+  const barX = 8, barW = W - 16, barY = 56;
+  let acc = 0;
+  for (const l of langs) {
+    const w = Math.round((l.pct / 100) * barW);
+    if (w > 0) s += rect(barX + acc, barY, w, 5, l.color);
+    acc += w;
+  }
+  if (acc < barW) s += rect(barX + acc, barY, barW - acc, 5, PAL.plum);
+
+  langs.slice(0, 3).forEach((l, i) => {
+    const x = 8 + i * 78, y = 65;
+    s += rect(x, y + 1, 4, 4, l.color);
+    s += text(l.name.toUpperCase().slice(0, 9) + " " + Math.round(l.pct) + "%", x + 7, y, PAL.sand);
+  });
+
+  return svgWrap(W, H, s, "Estadisticas de GitHub de " + USER);
+}
+
 function contribSvg(contrib) {
   const days = contrib.days;
-  const CELL = 16, GAP = 4, STEP = CELL + GAP, X0 = 92, Y0 = 92;
-  const LV = ["#1c1433", "#4a2d7a", "#7b3fd4", "#b36bff", "#ff6fb5"];
+  const CELL = 3, STEP = 4;
+  const LV = [PAL.plum, PAL.wine, PAL.terra, PAL.ochre, PAL.sand];
   const first = new Date(days[0].date + "T00:00:00Z");
   const weekStart = new Date(first);
   weekStart.setUTCDate(first.getUTCDate() - first.getUTCDay());
 
-  let maxCol = 0, cells = "", lastMonth = -1;
-  const monthAt = {};
+  const X0 = 8, Y0 = 24;
+  let cells = "";
   for (const d of days) {
     const dt = new Date(d.date + "T00:00:00Z");
     const col = Math.floor((dt - weekStart) / 604800000);
-    const row = dt.getUTCDay();
-    if (col > maxCol) maxCol = col;
-    // una sola etiqueta por mes: sin esto varias columnas del mismo mes la repiten
-    if (dt.getUTCDate() <= 7 && dt.getUTCMonth() !== lastMonth) {
-      monthAt[col] = dt.getUTCMonth();
-      lastMonth = dt.getUTCMonth();
-    }
-    cells += '<rect x="' + (X0 + col * STEP) + '" y="' + (Y0 + row * STEP) +
-      '" width="' + CELL + '" height="' + CELL + '" rx="3" fill="' + LV[d.level] + '"/>';
+    cells += rect(X0 + col * STEP, Y0 + dt.getUTCDay() * STEP, CELL, CELL, LV[d.level]);
   }
+  const H = Y0 + 7 * STEP + 14;
 
-  const gridW = (maxCol + 1) * STEP, gridH = 7 * STEP;
-  const W = X0 + gridW + 60, H = Y0 + gridH + 78;
-  const MES = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
-  const months = Object.keys(monthAt).map((col) =>
-    '<text x="' + (X0 + col * STEP) + '" y="' + (Y0 - 12) + '" font-family="' + MONO +
-    '" font-size="11" fill="#7a6fa5" letter-spacing="1">' + MES[monthAt[col]] + "</text>").join("");
-  const DIA = ["", "LUN", "", "MIE", "", "VIE", ""];
-  const dayLabels = DIA.map((t, i) => t
-    ? '<text x="' + (X0 - 12) + '" y="' + (Y0 + i * STEP + 12) + '" text-anchor="end" font-family="' +
-      MONO + '" font-size="11" fill="#7a6fa5">' + t + "</text>" : "").join("");
-  const legend = LV.map((c, i) =>
-    '<rect x="' + (W - 200 + i * 22) + '" y="' + (H - 34) + '" width="14" height="14" rx="3" fill="' + c + '"/>').join("");
+  let s = frame(W, H);
+  s += text("365 DIAS", 8, 7, PAL.cream);
+  const rango = days[0].date.slice(0, 7) + " / " + days[days.length - 1].date.slice(0, 7);
+  s += text(rango, W - 8 - textWidth(rango), 7, PAL.plum);
+  s += rect(8, 17, W - 16, 1, PAL.plum);
+  s += cells;
 
-  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H +
-'" role="img" aria-label="' + contrib.total + " contribuciones de " + USER + ' en el ultimo anio">' +
-'<defs>' +
-'<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0b0716"/><stop offset="100%" stop-color="#1c1036"/></linearGradient>' +
-'<pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="2" fill="#000" opacity="0.16"/></pattern>' +
-'<clipPath id="gridclip"><rect x="' + X0 + '" y="' + Y0 + '" width="' + gridW + '" height="' + gridH + '"/></clipPath>' +
-'</defs>' +
-'<rect width="' + W + '" height="' + H + '" fill="url(#bg)"/>' +
-'<text x="60" y="46" font-family="' + MONO + '" font-size="19" fill="#ff6fb5" letter-spacing="5">CONTINUE?</text>' +
-'<text x="60" y="68" font-family="' + MONO + '" font-size="13" fill="#8f83bd">' + contrib.total + ' contribuciones en el ultimo a&#241;o</text>' +
-'<text x="' + (W - 60) + '" y="46" text-anchor="end" font-family="' + MONO + '" font-size="12" fill="#6b6390" letter-spacing="2">' +
-  days[0].date + " &#8594; " + days[days.length - 1].date + "</text>" +
-'<line x1="60" y1="80" x2="' + (W - 60) + '" y2="80" stroke="#b36bff" stroke-opacity="0.28" stroke-width="2"/>' +
-months + dayLabels +
-"<g>" + cells + "</g>" +
-'<g clip-path="url(#gridclip)"><rect x="' + X0 + '" y="' + Y0 + '" width="90" height="' + gridH + '" fill="#ffffff" opacity="0.07">' +
-'<animate attributeName="x" values="' + (X0 - 90) + ";" + (X0 + gridW) + '" dur="4.5s" repeatCount="indefinite"/></rect></g>' +
-'<text x="' + (W - 214) + '" y="' + (H - 23) + '" text-anchor="end" font-family="' + MONO + '" font-size="11" fill="#7a6fa5">MENOS</text>' +
-legend +
-'<text x="' + (W - 200 + 5 * 22 + 6) + '" y="' + (H - 23) + '" font-family="' + MONO + '" font-size="11" fill="#7a6fa5">MAS</text>' +
-'<rect width="' + W + '" height="' + H + '" fill="url(#scan)"/>' +
-'<rect x="2" y="2" width="' + (W - 4) + '" height="' + (H - 4) + '" fill="none" stroke="#b36bff" stroke-opacity="0.45" stroke-width="4"/>' +
-"</svg>";
+  s += text(contrib.total + " CONTRIBUCIONES", 8, H - 11, PAL.sand);
+  const lx = W - 8 - LV.length * 5;
+  LV.forEach((c, i) => { s += rect(lx + i * 5, H - 10, 4, 4, c); });
+  s += text("+", lx - 8, H - 11, PAL.plum);
+
+  return svgWrap(W, H, s, contrib.total + " contribuciones de " + USER + " en el ultimo anio");
 }
 
 (async () => {
-  const fs0 = require("fs");
-  // --contrib: genera solo el grid (no toca la API, sirve para probar sin token)
+  const fs = require("fs");
+  fs.mkdirSync(OUT, { recursive: true });
+
   if (process.argv.includes("--contrib")) {
     const c = await contributions();
-    fs0.mkdirSync(OUT, { recursive: true });
-    fs0.writeFileSync(OUT + "/contrib.svg", contribSvg(c));
-    return console.log("ok -> " + OUT + "/contrib.svg  (" + c.total + " contribuciones, " + c.days.length + " dias)");
+    fs.writeFileSync(OUT + "/contrib.svg", contribSvg(c));
+    return console.log("ok -> contrib.svg  (" + c.total + " contribuciones, " + c.days.length + " dias)");
   }
 
   const [user, contrib] = await Promise.all([api("/users/" + USER), contributions()]);
@@ -158,70 +180,13 @@ legend +
     }
     for (const k of Object.keys(l)) bytes[k] = (bytes[k] || 0) + l[k];
   }
-
   const total = Object.values(bytes).reduce((a, b) => a + b, 0) || 1;
-  const top = Object.entries(bytes).sort((a, b) => b[1] - a[1]).slice(0, 6)
-    .map(([name, v], i) => ({ name, pct: (v / total) * 100, color: readable(LANG_COLOR[name], i) }));
-  const shown = top.reduce((a, l) => a + l.pct, 0);
-  if (shown < 99.5) top.push({ name: "Otros", pct: 100 - shown, color: "#4a4370" });
+  const langs = Object.entries(bytes).sort((a, b) => b[1] - a[1]).slice(0, 6)
+    .map(([name, v], i) => ({ name, pct: (v / total) * 100, color: LANG_RAMP[i % LANG_RAMP.length] }));
 
-  const years = ((Date.now() - new Date(user.created_at)) / 31557600000).toFixed(1);
-  const W = 1200, H = 300;
-  const boxes = [
-    { n: own.length, l: "REPOS" },
-    { n: contrib.total, l: "CONTRIBUCIONES" },
-    { n: user.followers, l: "SEGUIDORES" },
-    { n: years, l: "AÑOS EN GITHUB" },
-  ];
-  const bw = 258, gap = 20, x0 = (W - (bw * 4 + gap * 3)) / 2;
-  const boxSvg = boxes.map((b, i) => {
-    const x = x0 + i * (bw + gap);
-    return '<g><rect x="' + x + '" y="76" width="' + bw + '" height="92" rx="6" fill="#150d2b" stroke="#b36bff" stroke-opacity="0.4" stroke-width="2"/>' +
-      '<text x="' + (x + bw / 2) + '" y="126" text-anchor="middle" font-family="' + MONO + '" font-size="38" font-weight="bold" fill="#ffd76b">' + b.n + "</text>" +
-      '<text x="' + (x + bw / 2) + '" y="152" text-anchor="middle" font-family="' + MONO + '" font-size="12" fill="#8f83bd" letter-spacing="2">' + b.l + "</text></g>";
-  }).join("");
-
-  const barX = 60, barW = W - 120, barY = 200;
-  let acc = 0;
-  const bar = top.map((l) => {
-    const w = (l.pct / 100) * barW, x = barX + acc;
-    acc += w;
-    return '<rect x="' + x.toFixed(1) + '" y="' + barY + '" width="' + Math.max(w, 0).toFixed(1) + '" height="18" fill="' + l.color + '"/>';
-  }).join("");
-  const legCols = 4, legW = barW / legCols;
-  const legend = top.map((l, i) => {
-    const x = barX + (i % legCols) * legW, y = barY + 48 + Math.floor(i / legCols) * 26;
-    return '<g><rect x="' + x + '" y="' + (y - 10) + '" width="11" height="11" rx="2" fill="' + l.color + '"/>' +
-      '<text x="' + (x + 19) + '" y="' + y + '" font-family="' + MONO + '" font-size="13" fill="#ded7f5">' +
-      esc(l.name) + ' <tspan fill="#8f83bd">' + l.pct.toFixed(1) + "%</tspan></text></g>";
-  }).join("");
-
-  const stats = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H +
-'" role="img" aria-label="Estadisticas de GitHub de ' + USER + '">' +
-'<defs>' +
-'<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0b0716"/><stop offset="100%" stop-color="#1c1036"/></linearGradient>' +
-'<pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="2" fill="#000" opacity="0.18"/></pattern>' +
-'</defs>' +
-'<rect width="' + W + '" height="' + H + '" fill="url(#bg)"/>' +
-'<text x="60" y="48" font-family="' + MONO + '" font-size="19" fill="#ff6fb5" letter-spacing="5">' + USER.toUpperCase() + "</text>" +
-'<text x="' + (W - 60) + '" y="48" text-anchor="end" font-family="' + MONO + '" font-size="12" fill="#6b6390" letter-spacing="2">ACTUALIZADO ' +
-  new Date().toISOString().slice(0, 10) + "</text>" +
-'<line x1="60" y1="60" x2="' + (W - 60) + '" y2="60" stroke="#b36bff" stroke-opacity="0.3" stroke-width="2"/>' +
-boxSvg +
-'<text x="60" y="' + (barY - 12) + '" font-family="' + MONO + '" font-size="13" fill="#8f83bd" letter-spacing="3">LENGUAJES</text>' +
-"<g>" + bar + "</g>" +
-'<rect x="' + barX + '" y="' + barY + '" width="' + barW + '" height="18" fill="none" stroke="#0b0716" stroke-width="2"/>' +
-legend +
-'<rect width="' + W + '" height="' + H + '" fill="url(#scan)"/>' +
-'<rect x="2" y="2" width="' + (W - 4) + '" height="' + (H - 4) + '" fill="none" stroke="#b36bff" stroke-opacity="0.45" stroke-width="4"/>' +
-"</svg>";
-
-  const fs = require("fs");
-  fs.mkdirSync(OUT, { recursive: true });
-  fs.writeFileSync(OUT + "/stats.svg", stats);
+  fs.writeFileSync(OUT + "/stats.svg", statsSvg(user, contrib, own.length, langs));
   fs.writeFileSync(OUT + "/contrib.svg", contribSvg(contrib));
-  console.log("ok -> " + OUT + "  (" + own.length + " repos, " + contrib.total + " contribuciones, " +
-    contrib.days.length + " dias, " + top.length + " langs)");
+  console.log("ok -> stats.svg + contrib.svg  (" + own.length + " repos, " + contrib.total + " contribuciones)");
 })().catch((e) => {
   console.error("ERROR:", e.message);
   process.exit(1);

@@ -1,149 +1,197 @@
-// Genera assets/banner.svg — pantalla de titulo arcade. Todo self-hosted, sin fuentes externas:
-// el titulo se dibuja como pixeles (rects) para que se vea igual en cualquier lado.
+// Genera assets/banner.svg — pantalla de titulo arcade.
+//
+// Grilla de 240x80 pixeles logicos, escalada x5 (1200x400).
+// Sin degrades ni glows: areas planas con transiciones ditheradas, y todo el texto en bitmap.
+// Ver scripts/lib/pixel.js para las reglas.
+//
 // Uso: node scripts/gen-banner.js [dir-extra-para-preview]
 
-const FONT = {
-  A: ["01110", "10001", "10001", "11111", "10001", "10001", "10001"],
-  M: ["10001", "11011", "10101", "10001", "10001", "10001", "10001"],
-  R: ["11110", "10001", "10001", "11110", "10100", "10010", "10001"],
-  U: ["10001", "10001", "10001", "10001", "10001", "10001", "01110"],
-  S: ["01111", "10000", "10000", "01110", "00001", "00001", "11110"],
-  E: ["11111", "10000", "10000", "11110", "10000", "10000", "11111"],
-  G: ["01110", "10001", "10000", "10111", "10001", "10001", "01111"],
-  O: ["01110", "10001", "10001", "10001", "10001", "10001", "01110"],
-  V: ["10001", "10001", "10001", "10001", "10001", "01010", "00100"],
-  I: ["11111", "00100", "00100", "00100", "00100", "00100", "11111"],
-  " ": ["00000", "00000", "00000", "00000", "00000", "00000", "00000"],
-};
+const { PAL, text, textCentered, textWidth, rect, dither, sprite } = require("./lib/pixel");
 
-// junta pixeles contiguos en un solo rect: menos nodos, archivo mas chico
-function runs(rows, w) {
-  const out = [];
-  rows.forEach((row, y) => {
-    let x = 0;
-    while (x < w) {
-      const ch = row[x];
-      if (ch && ch !== "0" && ch !== ".") {
-        let len = 0;
-        while (x + len < w && row[x + len] === ch) len++;
-        out.push({ x, y, len, ch });
-        x += len;
-      } else x++;
-    }
-  });
-  return out;
-}
+const W = 240, H = 84, SCALE = 5;
+const HORIZON = 44, GROUND_Y = 62;
 
-function pixelText(text, scale) {
-  const cols = Array.from({ length: 7 }, () => "");
-  [...text].forEach((c, ci) => {
-    const g = FONT[c];
-    if (!g) throw new Error("sin glifo: " + c);
-    for (let r = 0; r < 7; r++) cols[r] += g[r] + (ci < text.length - 1 ? "0" : "");
-  });
-  const w = cols[0].length;
-  const body = runs(cols, w).map((r) =>
-    '<rect x="' + r.x * scale + '" y="' + r.y * scale + '" width="' + r.len * scale + '" height="' + scale + '"/>').join("");
-  return { body, width: w * scale, height: 7 * scale };
-}
-
-// mate con bombilla — 16x16
-const MATE = [
-  ".............bb.",
-  "............bb..",
-  "...........bb...",
-  "..........bb....",
-  "....kkkkkkbk....",
-  "...kgggggggk....",
-  "...kGgggggGk....",
-  "..kmmmmmmmmmk...",
-  "..kMMMMMMMMMk...",
-  ".kMMMMMMMMMMDk..",
-  ".kMMMMMMMMMMDk..",
-  ".kMMMMMMMMMMDk..",
-  "..kMMMMMMMMDk...",
-  "..kkMMMMMMkk....",
-  "...kkmmmmkk.....",
-  "....kkkkkk......",
+// --- cielo ---
+// Planos con franjas ditheradas solo en las uniones: asi lo hace el pixel art de verdad,
+// y de paso el archivo pesa la mitad que ditherando todo.
+const BANDS = [
+  { to: 17, color: PAL.ink },
+  { to: 28, color: PAL.plum },
+  { to: 36, color: PAL.wine },
+  { to: HORIZON, color: PAL.terra },
 ];
-const PAL = {
-  k: "#120d1e", // contorno
-  b: "#c9d1d9", // bombilla
-  g: "#6aa84f", // yerba
-  G: "#3f6b2a", // yerba en sombra
-  m: "#a8703f", // borde de la calabaza
-  M: "#7a4a24", // cuerpo
-  D: "#4f2f16", // sombra del cuerpo
-};
-
-const mate = (sc) => runs(MATE, 16).map((r) =>
-  '<rect x="' + r.x * sc + '" y="' + r.y * sc + '" width="' + r.len * sc + '" height="' + sc + '" fill="' + PAL[r.ch] + '"/>').join("");
-
-// vapor saliendo de la yerba
-function steam(sc) {
-  const wisps = [[4, -1, 0], [6, -2, 0.9], [8, -1, 1.8]];
-  return wisps.map(([cx, cy, delay]) => {
-    const x = cx * sc, y = cy * sc, s = Math.round(sc * 0.6);
-    return '<rect x="' + x + '" y="' + y + '" width="' + s + '" height="' + s + '" rx="1" fill="#d8cff0" opacity="0">' +
-      '<animate attributeName="opacity" values="0;0.55;0.35;0" dur="2.6s" begin="' + delay + 's" repeatCount="indefinite"/>' +
-      '<animate attributeName="y" values="' + y + ";" + (y - sc * 3.5) + '" dur="2.6s" begin="' + delay + 's" repeatCount="indefinite"/>' +
-      "</rect>";
-  }).join("");
+let sky = "";
+let prevTo = 0, prevColor = PAL.ink;
+for (const b of BANDS) {
+  sky += rect(0, prevTo, W, b.to - prevTo, b.color);
+  if (prevTo > 0) {
+    const th = 6, ty = prevTo - Math.floor(th / 2);
+    sky += dither(0, ty, W, th, prevColor, b.color, (x, y) => y / (th - 1));
+  }
+  prevTo = b.to; prevColor = b.color;
 }
+sky += dither(0, HORIZON - 5, W, 5, PAL.terra, PAL.ochre, (x, y) => y / 4);
 
-// PRNG con semilla para que la salida sea reproducible
+// --- estrellas: solo arriba, donde el cielo esta oscuro ---
 let seed = 20260829;
 const rnd = () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
-
-const W = 1200, H = 300;
 let stars = "";
-for (let i = 0; i < 70; i++) {
-  const x = Math.round(rnd() * W), y = Math.round(rnd() * (H - 70));
-  const s = rnd() > 0.86 ? 3 : 2;
-  stars += '<rect x="' + x + '" y="' + y + '" width="' + s + '" height="' + s + '" fill="#a394e8" opacity="0.5">' +
-    '<animate attributeName="opacity" values="0.12;0.85;0.12" dur="' + (2 + rnd() * 3).toFixed(2) +
-    's" begin="' + (rnd() * 4).toFixed(2) + 's" repeatCount="indefinite"/></rect>';
+for (let i = 0; i < 62; i++) {
+  const x = Math.floor(rnd() * W), y = Math.floor(rnd() * 27);
+  stars += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + (rnd() > 0.7 ? PAL.cream : PAL.sand) + '" opacity="0.9">'
+    + '<animate attributeName="opacity" values="0.15;0.85;0.15" dur="' + (2 + rnd() * 3).toFixed(1)
+    + 's" begin="' + (rnd() * 4).toFixed(1) + 's" repeatCount="indefinite"/></rect>';
 }
 
-const T = pixelText("AMARU SEGOVIA", 8);
-const tx = Math.round((W - T.width) / 2), ty = 62;
-const SC = 6, spX = 78, spY = H - 16 * SC - 22;
+// --- sol ---
+function disc(cx, cy, r, color) {
+  let out = "";
+  for (let y = -r; y <= r; y++) {
+    const w = Math.floor(Math.sqrt(r * r - y * y));
+    if (w > 0) out += rect(cx - w, cy + y, w * 2 + 1, 1, color);
+  }
+  return out;
+}
+const sun = disc(214, 25, 8, PAL.sand);
 
-const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H +
-'" role="img" aria-label="Amaru Segovia — Game Developer y Frontend Developer">' +
-'<defs>' +
-'<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#08050f"/><stop offset="50%" stop-color="#170e2f"/><stop offset="100%" stop-color="#33155f"/></linearGradient>' +
-'<linearGradient id="ttlg" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0%" stop-color="#fff2b8"/><stop offset="35%" stop-color="#ffc46b"/><stop offset="70%" stop-color="#ff6fb5"/><stop offset="100%" stop-color="#a06bff"/></linearGradient>' +
-'<radialGradient id="glow" cx="50%" cy="30%" r="65%"><stop offset="0%" stop-color="#c78bff" stop-opacity="0.34"/><stop offset="100%" stop-color="#c78bff" stop-opacity="0"/></radialGradient>' +
-'<pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="2" fill="#000" opacity="0.24"/></pattern>' +
-'<pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0 L0 0 0 48" fill="none" stroke="#c78bff" stroke-opacity="0.22" stroke-width="1"/></pattern>' +
-'</defs>' +
-'<rect width="' + W + '" height="' + H + '" fill="url(#sky)"/>' +
-'<rect y="' + (H - 96) + '" width="' + W + '" height="96" fill="url(#grid)"/>' +
-"<g>" + stars + "</g>" +
-'<rect width="' + W + '" height="' + H + '" fill="url(#glow)"/>' +
-'<g transform="translate(' + (tx + 5) + " " + (ty + 6) + ')" fill="#4c1d7a" opacity="0.85">' + T.body + "</g>" +
-'<g transform="translate(' + tx + " " + ty + ')" fill="url(#ttlg)">' + T.body + "</g>" +
-'<text x="' + W / 2 + '" y="' + (ty + T.height + 40) + '" text-anchor="middle" font-family="' + "ui-monospace,'DejaVu Sans Mono','Courier New',monospace" +
-'" font-size="21" fill="#ded7f5" letter-spacing="5">GAME DEVELOPER &#215; FRONTEND DEVELOPER</text>' +
-'<text x="' + W / 2 + '" y="' + (ty + T.height + 72) + '" text-anchor="middle" font-family="' + "ui-monospace,'DejaVu Sans Mono','Courier New',monospace" +
-'" font-size="15" fill="#8f83bd" letter-spacing="3">UNITY &#183; C# &#183; BLENDER &#183; NEXT.JS</text>' +
-'<text x="' + W / 2 + '" y="' + (H - 28) + '" text-anchor="middle" font-family="' + "ui-monospace,'DejaVu Sans Mono','Courier New',monospace" +
-'" font-size="17" fill="#ffd76b" letter-spacing="4">&#9654; PRESS START' +
-'<animate attributeName="opacity" values="1;1;0;0" dur="1.3s" calcMode="discrete" repeatCount="indefinite"/></text>' +
-'<g transform="translate(' + spX + " " + spY + ')">' + steam(SC) + mate(SC) + "</g>" +
-'<text x="' + (W - 40) + '" y="' + (H - 28) + '" text-anchor="end" font-family="' + "ui-monospace,'DejaVu Sans Mono','Courier New',monospace" +
-'" font-size="13" fill="#7a6fa5" letter-spacing="2">JUJUY &#183; ARGENTINA</text>' +
-'<text x="40" y="42" font-family="' + "ui-monospace,'DejaVu Sans Mono','Courier New',monospace" +
-'" font-size="13" fill="#7a6fa5" letter-spacing="2">PLAYER 1</text>' +
-'<rect width="' + W + '" height="' + H + '" fill="url(#scan)"/>' +
-'<rect width="' + W + '" height="46" fill="#ffffff" opacity="0.04"><animate attributeName="y" values="-46;' + H + '" dur="6s" repeatCount="indefinite"/></rect>' +
-'<rect x="2" y="2" width="' + (W - 4) + '" height="' + (H - 4) + '" fill="none" stroke="#c78bff" stroke-opacity="0.5" stroke-width="4"/>' +
-'<rect x="8" y="8" width="' + (W - 16) + '" height="' + (H - 16) + '" fill="none" stroke="#ff6fb5" stroke-opacity="0.18" stroke-width="1"/>' +
-"</svg>";
+// --- cerros ---
+function ridgeFn(points) {
+  return (x) => {
+    for (let i = 0; i < points.length - 1; i++) {
+      const [x0, y0] = points[i], [x1, y1] = points[i + 1];
+      if (x >= x0 && x <= x1) return Math.round(y0 + ((y1 - y0) * (x - x0)) / (x1 - x0));
+    }
+    return points[points.length - 1][1];
+  };
+}
+
+// cordon de atras: silueta plana, da profundidad
+const backRidge = ridgeFn([[0, 42], [34, 34], [62, 38], [92, 29], [128, 36], [158, 31], [196, 39], [240, 35]]);
+let back = "";
+for (let x = 0; x < W; x++) back += rect(x, backRidge(x), 1, GROUND_Y - backRidge(x), PAL.plum);
+
+// cerro de adelante: estratos inclinados en los siete colores, con linea de contorno
+const frontRidge = ridgeFn([[0, 54], [26, 48], [48, 42], [70, 46], [96, 40], [124, 47], [150, 41], [178, 48], [208, 44], [240, 50]]);
+const STRATA = [PAL.wine, PAL.terra, PAL.ochre, PAL.sand, PAL.cream, PAL.olive, PAL.teal];
+// cada color de estrato con su equivalente en sombra
+const SHADE = {
+  [PAL.wine]: PAL.plum, [PAL.terra]: PAL.wine, [PAL.ochre]: PAL.terra, [PAL.sand]: PAL.ochre,
+  [PAL.cream]: PAL.sand, [PAL.olive]: PAL.teal, [PAL.teal]: PAL.plum,
+};
+const BAND_H = 6, SLOPE = 0.38;
+const bandAt = (x, y) => Math.floor((y + x * SLOPE) / BAND_H);
+const litAt = (x, y) => STRATA[((bandAt(x, y) % STRATA.length) + STRATA.length) % STRATA.length];
+// la luz viene de arriba: la parte baja de la ladera va en sombra, siguiendo el perfil
+const shadowY = (x) => frontRidge(x) + 13;
+const colorAt = (x, y) => (y >= shadowY(x) ? SHADE[litAt(x, y)] : litAt(x, y));
+
+let front = "";
+for (let x = 0; x < W; x++) {
+  const top = frontRidge(x);
+  let y = top;
+  while (y < GROUND_Y) {
+    const c = colorAt(x, y);
+    let len = 1;
+    while (y + len < GROUND_Y && colorAt(x, y + len) === c) len++;
+    front += rect(x, y, 1, len, c);
+    // linea de separacion entre estratos: los lee como capas de roca, no como rayas sueltas
+    if (y + len < GROUND_Y) front += rect(x, y + len - 1, 1, 1, PAL.ink);
+    y += len;
+  }
+  front += rect(x, top, 1, 1, PAL.ink);
+}
+
+
+// --- suelo ---
+const ground = rect(0, GROUND_Y, W, H - GROUND_Y, PAL.ink)
+  + dither(0, GROUND_Y, W, 5, PAL.ink, PAL.plum, (x, y) => 1 - y / 4);
+
+// --- mate ---
+const MATE = [
+  "..............bb....",
+  ".............bb.....",
+  "............bb......",
+  "...........bb.......",
+  "..........bb........",
+  ".....kkkkkkbk.......",
+  "....kgggggggkk......",
+  "....kgGgggGggk......",
+  "...koooooooooook....",
+  "...kottttttttowk....",
+  "..kottttttttttwk....",
+  ".kottttttttttttwk...",
+  ".kottttttttttttwk...",
+  ".kottttttttttttwk...",
+  ".kottttttttttwwk....",
+  "..kttttttttttwk.....",
+  "..kkttttttttkk......",
+  "...kkooooookk.......",
+  "....kkkkkkkk........",
+  "....................",
+];
+const MATE_PAL = { k: PAL.ink, b: PAL.cream, g: PAL.olive, G: PAL.teal,
+                   o: PAL.ochre, t: PAL.terra, w: PAL.wine };
+const MATE_X = 16, MATE_Y = GROUND_Y + 1;
+const mate = sprite(MATE, MATE_PAL, MATE_X, MATE_Y);
+
+
+// cardon, para que el suelo no sea una franja vacia
+const CACTUS = [
+  ".....ooo.....",
+  ".....oCo.....",
+  ".....oCo.....",
+  ".....oCo.....",
+  ".ooo.oCo.ooo.",
+  ".oCo.oCo.oCo.",
+  ".oCo.oCo.oCo.",
+  ".oCo.oCo.oCo.",
+  ".oCoooCoooCo.",
+  ".....oCo.....",
+  ".....oCo.....",
+  ".....oCo.....",
+  ".....oCo.....",
+  ".....oCo.....",
+  ".....oCo.....",
+  ".....ooo.....",
+]
+const cactus = sprite(CACTUS, { o: PAL.teal, C: PAL.olive }, W - 32, GROUND_Y + 4);
+
+const steam = [[6, -3, 0], [9, -5, 0.9], [12, -3, 1.8]].map(([dx, dy, delay]) => {
+  const x = MATE_X + dx, y = MATE_Y + dy;
+  return '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + PAL.cream + '" opacity="0">'
+    + '<animate attributeName="opacity" values="0;0.75;0.3;0" dur="2.8s" begin="' + delay + 's" repeatCount="indefinite"/>'
+    + '<animate attributeName="y" values="' + y + ";" + (y - 6) + '" dur="2.8s" begin="' + delay + 's" repeatCount="indefinite"/>'
+    + "</rect>";
+}).join("");
+
+// --- texto ---
+const TITLE = "AMARU SEGOVIA";
+const title = textCentered(TITLE, W / 2 + 1, 15, PAL.ink, 2)   // sombra dura, sin blur
+            + textCentered(TITLE, W / 2, 14, PAL.cream, 2);
+const subtitle = textCentered("GAME DEV / FRONTEND DEV", W / 2, 32, PAL.sand, 1);
+const player = text("PLAYER 1", 4, 3, PAL.olive, 1);
+const place = text("JUJUY · ARGENTINA", W - 4 - textWidth("JUJUY · ARGENTINA"), 3, PAL.olive, 1);
+const start = "<g>" + textCentered("▶ PRESS START", W / 2, 70, PAL.sand, 1)
+  + '<animate attributeName="opacity" values="1;1;1;0" dur="1.6s" calcMode="discrete" repeatCount="indefinite"/></g>';
+
+// --- scanlines ---
+let scan = "";
+for (let y = 0; y < H; y += 2) scan += rect(0, y, W, 1, PAL.ink);
+
+const svg =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H + '" width="' + W * SCALE +
+  '" height="' + H * SCALE + '" shape-rendering="crispEdges" role="img" ' +
+  'aria-label="Amaru Segovia, game developer y frontend developer. Jujuy, Argentina.">' +
+  sky + stars + sun + back + front + ground +
+  title + subtitle + player + place +
+  steam + cactus + mate + start +
+  '<g opacity="0.13">' + scan + "</g>" +
+  rect(0, 0, W, 1, PAL.ink) + rect(0, H - 1, W, 1, PAL.ink) +
+  rect(0, 0, 1, H, PAL.ink) + rect(W - 1, 0, 1, H, PAL.ink) +
+  "</svg>";
 
 const fs = require("fs");
 fs.mkdirSync("assets", { recursive: true });
 fs.writeFileSync("assets/banner.svg", svg);
-if (process.argv[2]) fs.writeFileSync(process.argv[2] + "/banner-preview.svg", svg);
-console.log("assets/banner.svg  " + (svg.length / 1024).toFixed(1) + " KB");
+if (process.argv[2]) fs.writeFileSync(process.argv[2] + "/banner.svg", svg);
+console.log("assets/banner.svg  " + (svg.length / 1024).toFixed(1) + " KB  (" + W + "x" + H + " logicos, x" + SCALE + ")");
