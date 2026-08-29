@@ -197,6 +197,35 @@ function ring(cx, cy, rOut, rIn, color) {
   return out;
 }
 
+// Trazo grueso entre dos puntos, con pincel cuadrado. Para brazos y diagonales.
+function line(x0, y0, x1, y1, thick, color) {
+  const pts = new Set();
+  const pasos = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 2;
+  const off = Math.floor(thick / 2);
+  for (let i = 0; i <= pasos; i++) {
+    const t = pasos === 0 ? 0 : i / pasos;
+    const cx = Math.round(x0 + (x1 - x0) * t), cy = Math.round(y0 + (y1 - y0) * t);
+    for (let dy = 0; dy < thick; dy++)
+      for (let dx = 0; dx < thick; dx++) pts.add((cx - off + dx) + "," + (cy - off + dy));
+  }
+  // agrupo por filas para no emitir un rect por pixel
+  const filas = {};
+  for (const p of pts) {
+    const [px, py] = p.split(",").map(Number);
+    (filas[py] = filas[py] || []).push(px);
+  }
+  let out = "";
+  for (const py of Object.keys(filas)) {
+    const xs = filas[py].sort((a, b) => a - b);
+    let ini = xs[0], len = 1;
+    for (let i = 1; i <= xs.length; i++) {
+      if (i < xs.length && xs[i] === ini + len) len++;
+      else { out += rect(ini, +py, len, 1, color); ini = xs[i]; len = 1; }
+    }
+  }
+  return out;
+}
+
 // Relleno de un cuadrilatero convexo, para las caras de un cubo isometrico.
 function quad(pts, color, ox = 0, oy = 0) {
   const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
@@ -247,4 +276,4 @@ function dilate(rows, char) {
   return out;
 }
 
-module.exports = { PAL, FONT, text, textCentered, textWidth, rect, dither, sprite, disc, ring, quad, dilate, BAYER4 };
+module.exports = { PAL, FONT, text, textCentered, textWidth, rect, dither, sprite, disc, ring, quad, line, dilate, BAYER4 };
