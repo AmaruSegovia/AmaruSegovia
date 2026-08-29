@@ -3,23 +3,22 @@
 </div>
 
 <p align="center">
-  <a href="https://amarusegovia.github.io/psx-converter/"><img alt="PSX Converter" src="https://img.shields.io/badge/PSX_CONVERTER-PROBALO_ONLINE-b36bff?style=for-the-badge&labelColor=150d2b&logo=googlechrome&logoColor=ffd76b" /></a>
+  <a href="https://marufelis.itch.io/el-ultimo-gaucho"><img alt="Los últimos gauchos en itch.io" src="https://img.shields.io/badge/LOS_ÚLTIMOS_GAUCHOS-JUGALO_GRATIS-fa5c5c?style=for-the-badge&logo=itchdotio&logoColor=white&labelColor=150d2b" /></a>
+  <a href="https://amarusegovia.github.io/psx-converter/"><img alt="PSX Converter" src="https://img.shields.io/badge/PSX_CONVERTER-PROBALO-b36bff?style=for-the-badge&logo=googlechrome&logoColor=ffd76b&labelColor=150d2b" /></a>
   <a href="https://github.com/AmaruSegovia?tab=followers"><img alt="Seguidores" src="https://custom-icon-badges.demolab.com/github/followers/AmaruSegovia?style=for-the-badge&logo=person-add&label=SEGUIR&labelColor=150d2b&color=7231c9&logoColor=white" /></a>
-  <img alt="Visitas al perfil" src="https://komarev.com/ghpvc/?username=AmaruSegovia&style=for-the-badge&label=VISITAS&color=ff6fb5" />
 </p>
 
 ---
 
 ## 🕹️ INSERT COIN · Sobre mí
 
-Hago **videojuegos con Unity** y **aplicaciones web con Next.js**. Vivo en Jujuy, Argentina 🇦🇷
+Empecé haciendo jueguitos por hobby y terminé metido en Unity hace 4 años. En el camino me hice frontend, así que ahora el día se me parte entre C# y TypeScript.
 
-- 🎮 **4 años** desarrollando juegos en Unity 2D/3D con C#
-- 💻 Hoy soy **Frontend Developer** en Corralón El Mercado — Next.js + TypeScript
-- 🥽 Desarrollé una experiencia de **Realidad Virtual para Meta Quest 3** para un planetario en Madrid
-- 🐎 Estoy construyendo **El Último Gaucho**, mi juego multijugador
-- 🎨 Me obsesiona el pixel art y lo retro — por eso hice el [PSX Converter](https://amarusegovia.github.io/psx-converter/)
-- 🎯 Fuera del código: **Overwatch**
+Lo que más me tira es lo retro: gráficos de PS1, pixel art, esa estética medio sucia de los 90. Tanto que terminé armando un [conversor de imágenes a pixel art](https://amarusegovia.github.io/psx-converter/) solo para poder usarlo en mis propias cosas.
+
+Ahora estoy con **[Los últimos gauchos](https://marufelis.itch.io/el-ultimo-gaucho)**: un co-op de supervivencia en el norte argentino, con invasión alienígena de por medio. Se baja gratis y se juega hasta de a 4.
+
+Si no estoy programando, estoy en Overwatch.
 
 ---
 
@@ -28,22 +27,21 @@ Hago **videojuegos con Unity** y **aplicaciones web con Next.js**. Vivo en Jujuy
 <table>
   <tr>
     <td width="50%" valign="top">
+      <h3>🐎 Los últimos gauchos</h3>
+      Co-op de supervivencia por oleadas en el norte argentino: talá árboles, construí el puente y escapá antes de que te alcancen los aliens. De 1 a 4 jugadores, estética PS1.
+      <br /><br />
+      <code>Unity</code> <code>C#</code> <code>Blender</code> <code>Multiplayer</code>
+      <br /><br />
+      <a href="https://marufelis.itch.io/el-ultimo-gaucho"><b>▶ Bajalo gratis en itch.io</b></a>
+    </td>
+    <td width="50%" valign="top">
       <h3>🕹️ PSX Converter</h3>
-      Convertí cualquier imagen a pixel art: <b>PSX</b>, <b>GameBoy</b>, <b>N64</b>, <b>CRT</b> y más.
-      Gratis y corre entero en el navegador.
+      Convertí cualquier imagen a pixel art: <b>PSX</b>, <b>GameBoy</b>, <b>N64</b>, <b>CRT</b> y más. Gratis y corre entero en el navegador.
       <br /><br />
       <code>TypeScript</code> <code>MIT</code>
       <br /><br />
       <a href="https://amarusegovia.github.io/psx-converter/"><b>▶ Probalo online</b></a> ·
       <a href="https://github.com/AmaruSegovia/psx-converter">Código</a>
-    </td>
-    <td width="50%" valign="top">
-      <h3>🐎 El Último Gaucho</h3>
-      Juego multijugador en desarrollo activo. Mi proyecto personal más ambicioso hasta ahora.
-      <br /><br />
-      <code>Unity</code> <code>C#</code> <code>Multiplayer</code>
-      <br /><br />
-      <i>En desarrollo — repositorio privado</i>
     </td>
   </tr>
   <tr>
@@ -84,7 +82,7 @@ Hago **videojuegos con Unity** y **aplicaciones web con Next.js**. Vivo en Jujuy
 <table>
   <tr>
     <td><b>Game Dev</b></td>
-    <td><img src="https://skillicons.dev/icons?i=unity,cs,cpp,java&theme=dark" alt="Unity, C#, C++, Java" /></td>
+    <td><img src="https://skillicons.dev/icons?i=unity,cs,cpp,java,blender&theme=dark" alt="Unity, C#, C++, Java, Blender" /></td>
   </tr>
   <tr>
     <td><b>Web</b></td>
@@ -105,21 +103,18 @@ Hago **videojuegos con Unity** y **aplicaciones web con Next.js**. Vivo en Jujuy
 </div>
 
 <div align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/AmaruSegovia/AmaruSegovia/output/github-contribution-grid-snake-dark.svg" />
-    <img alt="Serpiente comiéndose mis contribuciones" src="https://raw.githubusercontent.com/AmaruSegovia/AmaruSegovia/output/github-contribution-grid-snake.svg" width="100%" />
-  </picture>
+  <img src="https://raw.githubusercontent.com/AmaruSegovia/AmaruSegovia/output/contrib.svg" alt="Mis contribuciones del último año" width="100%" />
 </div>
 
-<p align="center"><sub>🐍 La serpiente y la tarjeta de stats se regeneran solas todos los días con GitHub Actions.</sub></p>
+<p align="center"><sub>Las dos tarjetas se generan solas todos los días con GitHub Actions.</sub></p>
 
 ---
 
 ## 📡 MULTIPLAYER · Conectemos
 
 <p align="center">
+  <a href="https://marufelis.itch.io/el-ultimo-gaucho"><img alt="itch.io" src="https://img.shields.io/badge/itch.io-fa5c5c?style=for-the-badge&logo=itchdotio&logoColor=white&labelColor=150d2b" /></a>
   <a href="https://www.instagram.com/purple_maru_/"><img alt="Instagram" src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white&labelColor=150d2b" /></a>
-  <a href="https://amarusegovia.github.io/psx-converter/"><img alt="PSX Converter" src="https://img.shields.io/badge/psx--converter-b36bff?style=for-the-badge&logo=itchdotio&logoColor=white&labelColor=150d2b" /></a>
 </p>
 
 <div align="center"><sub>▶ PRESS START · Jujuy, Argentina</sub></div>
