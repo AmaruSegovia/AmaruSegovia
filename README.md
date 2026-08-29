@@ -28,7 +28,11 @@ Si no estoy programando, estoy en Overwatch.
 
 ## Herramientas
 
-Unity y C# para los juegos, con Blender para lo que haya que modelar. Next.js y TypeScript en el trabajo. Antes pasé por Processing y Java en la facultad, y algo de C++. Git y GitHub Actions para no repetir tareas a mano; el banner de arriba y las dos tarjetas de abajo, por ejemplo, las genera un script propio.
+<img src="https://raw.githubusercontent.com/AmaruSegovia/AmaruSegovia/master/assets/inventario.svg?v=1" alt="Unity, C#, Blender, shaders, Next.js, TypeScript, Node y Git" width="100%">
+
+Unity y C# para los juegos, con Blender para lo que haya que modelar. Next.js y TypeScript en el trabajo. Antes pasé por Processing y Java en la facultad, y algo de C++. Git y GitHub Actions para no repetir tareas a mano.
+
+Los iconos de arriba también son dibujados: no existe ningún pack de pixel art con logos de Unity o Blender, así que los armé con las mismas primitivas que el resto.
 
 ## Números
 
