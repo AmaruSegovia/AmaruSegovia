@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/AmaruSegovia/AmaruSegovia/master/assets/banner.svg" alt="Amaru Segovia, game developer y frontend developer. Jujuy, Argentina." width="100%">
+<img src="https://raw.githubusercontent.com/AmaruSegovia/AmaruSegovia/master/assets/banner.svg?v=2" alt="Amaru Segovia, game developer y frontend developer. Jujuy, Argentina." width="100%">
 
 Hago videojuegos con Unity y aplicaciones web con Next.js. Vivo en Jujuy, Argentina.
 
@@ -40,4 +40,4 @@ Se regeneran solas cada día. El código está en [`scripts/`](https://github.co
 
 ## Dónde encontrarme
 
-[itch.io](https://marufelis.itch.io) · [Instagram](https://www.instagram.com/purple_maru_/)
+[itch.io](https://marufelis.itch.io) · [LinkedIn](https://www.linkedin.com/in/amaru-segovia) · [Instagram](https://www.instagram.com/purple_maru_/)

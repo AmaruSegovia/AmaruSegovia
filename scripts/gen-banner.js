@@ -5,6 +5,9 @@
 // Ver scripts/lib/pixel.js para las reglas.
 //
 // Uso: node scripts/gen-banner.js [dir-extra-para-preview]
+//
+// OJO: si cambias el banner, subi el ?v= de la URL en el README. GitHub lo sirve por
+// su proxy Camo, que cachea por URL, y sin eso el perfil sigue mostrando el viejo.
 
 const { PAL, text, textCentered, textWidth, rect, dither, sprite } = require("./lib/pixel");
 
